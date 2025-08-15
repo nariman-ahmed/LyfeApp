@@ -13,6 +13,8 @@ namespace LyfeApp.Data.Models
         public string FullName { get; set; }
 
         public string? ProfilePicUrl { get; set; }
+        public bool IsDeleted { get; set; }
+
 
         public ICollection<PostModel> Posts { get; set; } = new List<PostModel>();
         public ICollection<LikeModel> Likes { get; set; } = new List<LikeModel>();

@@ -20,6 +20,7 @@ namespace LyfeApp.Data.Models
         public DateTime DateCreated { get; set; }
 
         public DateTime DateUpdated { get; set; }
+        public bool IsDeleted { get; set; }
 
         //forign key to UserModel
         public int UserId { get; set; }

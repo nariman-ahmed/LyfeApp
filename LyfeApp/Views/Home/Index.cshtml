@@ -101,3 +101,27 @@
 
 <partial name="Modals/_CreateStory"></partial>
 <partial name="Modals/_CreateStatus" model="new CreatedPostDto()"></partial>
+<partial name="Home/_PostDeleteConfirmation" />
+
+<script>
+    function openPostDeleteConfirmation(postId) {
+        // Find and hide the specific dropdown that was clicked
+        // We need to find the dropdown that's currently open
+        const openDropdowns = document.querySelectorAll('.post-options-dropdown[style*="display: block"], .post-options-dropdown.uk-open');
+        openDropdowns.forEach(dropdown => {
+            dropdown.style.display = 'none';
+            dropdown.classList.remove('uk-open');
+        });
+        
+        // Alternative approach: hide all dropdowns to be safe
+        const allDropdowns = document.querySelectorAll('.post-options-dropdown');
+        allDropdowns.forEach(dropdown => {
+            dropdown.style.display = 'none';
+            dropdown.classList.remove('uk-open');
+        });
+        
+        // Set the post ID and show the modal
+        document.getElementById('postId').value = postId;
+        UIkit.modal('#postDeleteDialog').show();
+    }
+</script>

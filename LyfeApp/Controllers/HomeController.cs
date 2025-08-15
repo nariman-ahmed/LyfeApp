@@ -23,6 +23,7 @@ namespace LyfeApp.Controllers
         public async Task<IActionResult> IndexAsync()
         {
             var allPosts = await _context.Posts
+            .Where(p => !p.IsDeleted)
             .Include(p => p.User)
             .Include(p => p.Likes)
             .Include(p => p.Favorites)
@@ -148,7 +149,7 @@ namespace LyfeApp.Controllers
             return RedirectToAction("Index");
 
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> TogglePostFavorites(PostFavoritesDto postFavDto)
         {
@@ -177,6 +178,23 @@ namespace LyfeApp.Controllers
                 await _context.SaveChangesAsync();
             }
 
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostDelete(DeletePostDto postdto)
+        {
+            var toBeDeleted = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postdto.PostId);
+
+            if (toBeDeleted != null)
+            {
+                // _context.Posts.Remove(toBeDeleted);     HARD DELETION
+                // await _context.SaveChangesAsync();
+                toBeDeleted.IsDeleted = true;
+                _context.Posts.Update(toBeDeleted);
+                await _context.SaveChangesAsync();
+            }
+            
             return RedirectToAction("Index");
         }
     }
