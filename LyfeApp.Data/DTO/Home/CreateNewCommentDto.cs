@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LyfeApp.Data.DTO.Home
 {
-    public class AddNewCommentDto
+    public class CreateNewCommentDto
     {
         public int PostId { get; set; }
         public string Content { get; set; }

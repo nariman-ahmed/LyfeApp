@@ -25,8 +25,16 @@ namespace LyfeApp.Controllers
             var allPosts = await _context.Posts
             .Include(p => p.User)
             .Include(p => p.Likes)
+            .Include(p => p.Comments).ThenInclude(c => c.User) //since each comment has a user
             .OrderByDescending(p => p.DateCreated)
             .ToListAsync();
+
+            // Log the posts for debugging
+            _logger.LogInformation($"Found {allPosts.Count} posts");
+            foreach (var post in allPosts)
+            {
+                _logger.LogInformation($"Post ID: {post.Id}, Content: {post.Content?.Substring(0, Math.Min(50, post.Content?.Length ?? 0))}");
+            }
 
             return View(allPosts);
         }
@@ -103,15 +111,54 @@ namespace LyfeApp.Controllers
             return RedirectToAction("Index");
         }
 
-        // [HttpPost]
-        // public async Task<IActionResult> CreateComment(CreateNewCommentDto commentDto)
-        // {
-        //     int loggedInUser = 1;
+        [HttpPost]
+        public async Task<IActionResult> CreateComment(CreateNewCommentDto commentDto)
+        {
+            int loggedInUser = 1;
 
-        //     var newComment = new CommentModel()
-        //     {
-                                                                         
-        //     }
-        // }
+            // // Log the received values for debugging
+            // _logger.LogInformation($"CreateComment called with PostId: {commentDto.PostId}, Content: {commentDto.Content}");
+
+            // // Validate that the post exists
+            // var post = await _context.Posts.FindAsync(commentDto.PostId);
+            // if (post == null)
+            // {
+            //     // Post doesn't exist, redirect back with an error
+            //     _logger.LogWarning($"Post with ID {commentDto.PostId} not found");
+            //     TempData["Error"] = "Post not found.";
+            //     return RedirectToAction("Index");
+            // }
+
+            var newComment = new CommentModel()
+            {
+                Content = commentDto.Content,
+                DateCreated = DateTime.Now,
+                DateUpdated = DateTime.Now,
+                PostId = commentDto.PostId,
+                UserId = loggedInUser
+            };
+
+            await _context.Comments.AddAsync(newComment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(DeleteCommentDto comment)
+        {
+            //hakhod mel ui el comment id
+            var commentToBeDeleted = await _context.Comments.FirstOrDefaultAsync(c => c.Id == comment.Id);
+
+            if (commentToBeDeleted != null)
+            {
+                _context.Comments.Remove(commentToBeDeleted);
+                await _context.SaveChangesAsync();
+            }
+           
+
+            return RedirectToAction("Index");
+
+        }
     }
 }
