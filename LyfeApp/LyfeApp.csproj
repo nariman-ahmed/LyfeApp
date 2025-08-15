@@ -6,4 +6,23 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="wwwroot\images\NewFolder1\**" />
+    <Content Remove="wwwroot\images\NewFolder1\**" />
+    <EmbeddedResource Remove="wwwroot\images\NewFolder1\**" />
+    <None Remove="wwwroot\images\NewFolder1\**" />
+    <ProjectReference Include="..\LyfeApp.Data\LyfeApp.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\images\placeholders\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />
+  </ItemGroup>
+
 </Project>
