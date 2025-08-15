@@ -11,7 +11,7 @@ namespace LyfeApp.Data.Services
     {
         Task<List<PostModel>> GetAllPostsAsync();
 
-        Task<PostModel> CreatePostAsync(PostModel post, IFormFile image);
+        Task<PostModel> CreatePostAsync(PostModel post);
 
         Task DeletePostAsync(int postId);
 

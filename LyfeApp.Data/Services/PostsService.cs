@@ -39,28 +39,8 @@ namespace LyfeApp.Data.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<PostModel> CreatePostAsync(PostModel post, IFormFile image)
+        public async Task<PostModel> CreatePostAsync(PostModel post)
         {
-            //Check and save the image
-            if (image != null && image.Length > 0)
-            {
-                string rootFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                if (image.ContentType.Contains("image"))
-                {
-                    string rootFolderPathImages = Path.Combine(rootFolderPath, "images/posts");
-                    Directory.CreateDirectory(rootFolderPathImages);
-
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-                    string filePath = Path.Combine(rootFolderPathImages, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                        await image.CopyToAsync(stream);
-
-                    //Set the URL to the newPost object
-                    post.ImageUrl = "/images/posts/" + fileName;
-                }
-            }
-
             await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
 

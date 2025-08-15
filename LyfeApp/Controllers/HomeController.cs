@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using LyfeApp.Data.DTO.Home;
 using LyfeApp.Data.Services;
 
-using System.Windows.Markup;
+
 
 namespace LyfeApp.Controllers
 {
@@ -15,12 +15,14 @@ namespace LyfeApp.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
         private readonly IPostsService _postService;
+        private readonly IFilesService _filesService;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IPostsService postService)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IPostsService postService, IFilesService filesService)
         {
             _logger = logger;
             _context = context;
             _postService = postService;
+            _filesService = filesService;
         }
 
         public async Task<IActionResult> IndexAsync()
@@ -35,17 +37,19 @@ namespace LyfeApp.Controllers
         {
             int loggedInUser = 1;
 
+            var imageUploadPath = await _filesService.UploadImageAsync(createdPost.Image, ImageFileType.PostImage);
+
             var newPost = new PostModel
             {
                 Content = createdPost.Content,
                 DateCreated = DateTime.Now,
                 DateUpdated = DateTime.Now,
-                ImageUrl = "",
+                ImageUrl = imageUploadPath,
                 NumReports = 0,
                 UserId = loggedInUser
             };
 
-            await _postService.CreatePostAsync(newPost, createdPost.Image);
+            await _postService.CreatePostAsync(newPost);
 
             return RedirectToAction("Index");
         }
