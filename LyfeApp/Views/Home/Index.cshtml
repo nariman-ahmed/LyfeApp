@@ -99,12 +99,14 @@
     </div>
 </main>
 
-<partial name="Modals/_CreateStory"></partial>
-<partial name="Modals/_CreateStatus" model="new CreatedPostDto()"></partial>
+<partial name="Modals/_CreateStory" />
+<partial name="Modals/_CreateStatus" model="new CreatedPostDto()" />
 <partial name="Home/_PostDeleteConfirmation" />
 
 <script>
     function openPostDeleteConfirmation(postId) {
+        console.log('Function called with postId:', postId);
+        
         // Find and hide the specific dropdown that was clicked
         // We need to find the dropdown that's currently open
         const openDropdowns = document.querySelectorAll('.post-options-dropdown[style*="display: block"], .post-options-dropdown.uk-open');
@@ -121,7 +123,8 @@
         });
         
         // Set the post ID and show the modal
-        document.getElementById('postId').value = postId;
+        document.getElementById('deleteConfirmationPostId').value = postId;
         UIkit.modal('#postDeleteDialog').show();
     }
+    
 </script>
