@@ -30,6 +30,7 @@ namespace LyfeApp.Data.Models
         //a post can have many likes and many comments
         public ICollection<LikeModel> Likes { get; set; } = new List<LikeModel>();
         public ICollection<CommentModel> Comments { get; set; } = new List<CommentModel>();
+        public ICollection<FavoriteModel> Favorites { get; set; } = new List<FavoriteModel>();
 
 
     }

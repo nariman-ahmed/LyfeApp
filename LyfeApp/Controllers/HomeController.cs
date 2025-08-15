@@ -25,6 +25,7 @@ namespace LyfeApp.Controllers
             var allPosts = await _context.Posts
             .Include(p => p.User)
             .Include(p => p.Likes)
+            .Include(p => p.Favorites)
             .Include(p => p.Comments).ThenInclude(c => c.User) //since each comment has a user
             .OrderByDescending(p => p.DateCreated)
             .ToListAsync();
@@ -116,19 +117,6 @@ namespace LyfeApp.Controllers
         {
             int loggedInUser = 1;
 
-            // // Log the received values for debugging
-            // _logger.LogInformation($"CreateComment called with PostId: {commentDto.PostId}, Content: {commentDto.Content}");
-
-            // // Validate that the post exists
-            // var post = await _context.Posts.FindAsync(commentDto.PostId);
-            // if (post == null)
-            // {
-            //     // Post doesn't exist, redirect back with an error
-            //     _logger.LogWarning($"Post with ID {commentDto.PostId} not found");
-            //     TempData["Error"] = "Post not found.";
-            //     return RedirectToAction("Index");
-            // }
-
             var newComment = new CommentModel()
             {
                 Content = commentDto.Content,
@@ -155,10 +143,41 @@ namespace LyfeApp.Controllers
                 _context.Comments.Remove(commentToBeDeleted);
                 await _context.SaveChangesAsync();
             }
-           
+
 
             return RedirectToAction("Index");
 
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> TogglePostFavorites(PostFavoritesDto postFavDto)
+        {
+            int loggedInUser = 1;
+
+            //check if user had liked the post. find the like with the same post and user id
+            var favorite = await _context.Favorites
+            .Where(f => f.PostId == postFavDto.PostId && f.UserId == loggedInUser)
+            .FirstOrDefaultAsync();
+
+            if (favorite != null)  //user already favored so we want to remove
+            {
+                _context.Favorites.Remove(favorite);
+                await _context.SaveChangesAsync();
+            }
+            else  //no like (null). add a like
+            {
+                var newFavorite = new FavoriteModel()
+                {
+                    DateCreated = DateTime.Now,
+                    PostId = postFavDto.PostId,
+                    UserId = loggedInUser
+                };
+
+                await _context.Favorites.AddAsync(newFavorite);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

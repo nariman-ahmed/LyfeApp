@@ -16,6 +16,10 @@
     else {
         displayTime = "Just Now";
     }
+
+    bool isLiked = Model.Likes.Any(l => l.UserId ==1);
+    bool isFavorited = Model.Favorites.Any(f => f.UserId ==1);
+
 }
 
 <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
@@ -84,9 +88,9 @@
         <div class="flex items-center gap-2.5">
             <form asp-controller="Home" asp-action="TogglePostLike" >
                 <input type="hidden" name="PostId" value="@Model.Id" />
-                <button type="submit" class="button-icon @(Model.Likes.Any(l => l.UserId == 1) ? "text-red-500 bg-red-100" : "" )">
+                <button type="submit" class="button-icon @(isLiked ? "text-red-500 bg-red-100" : "" )">
                     @* check if the like that exists is done by the logged in user. *@
-                    <ion-icon class="text-lg" name="@(Model.Likes.Any(l => l.UserId == 1) ? "heart" : "heart-outline")"></ion-icon>
+                    <ion-icon class="text-lg" name="@(isLiked ? "heart" : "heart-outline")"></ion-icon>
                 </button>
             </form>
             <a href="#">@Model.Likes.Count</a>
@@ -101,10 +105,16 @@
 
         <div class="ml-auto"></div>
 
-        <div>
-            <a class="button-icon ml-auto">
-                <ion-icon class="text-lg" name="bookmark-outline"></ion-icon>
-            </a>
+        <div class="flex items-center gap-2">
+            <form asp-controller="Home" asp-action="TogglePostFavorites">
+                <input type="hidden" name="postId" value="@Model.Id"/>
+                <button type="submit" class="button-icon ml-auto @(isFavorited ? "text-orange-500 bt-orange-100" : "" )">
+                    <ion-icon class="text-lg" name="@(isFavorited ? "bookmark" : "bookmark-outline" )"></ion-icon>
+                </button>
+            </form>
+            @if(Model.Favorites.Count>0){
+                 <a href="#">@Model.Favorites.Count</a>
+            }
         </div>
     </div>
 

@@ -20,6 +20,7 @@ namespace LyfeApp.Data
         public DbSet<UserModel> Users { get; set; }
         public DbSet<LikeModel> Likes { get; set; }
         public DbSet<CommentModel> Comments { get; set; }
+        public DbSet<FavoriteModel> Favorites { get; set; }
         
 
 
@@ -68,6 +69,22 @@ namespace LyfeApp.Data
                 .HasOne(l => l.User)
                 .WithMany(u => u.Comments)
                 .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //favorites
+            modelBuilder.Entity<FavoriteModel>()
+                .HasKey(f => new { f.PostId, f.UserId });
+
+            modelBuilder.Entity<FavoriteModel>()
+                .HasOne(f => f.Post)
+                .WithMany(p => p.Favorites)
+                .HasForeignKey(f => f.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<FavoriteModel>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Favorites)
+                .HasForeignKey(f => f.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
