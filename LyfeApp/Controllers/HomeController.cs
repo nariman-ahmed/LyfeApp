@@ -4,6 +4,7 @@ using LyfeApp.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LyfeApp.Data.DTO.Home;
+using LyfeApp.Data.Services;
 
 using System.Windows.Markup;
 
@@ -13,30 +14,18 @@ namespace LyfeApp.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
+        private readonly IPostsService _postService;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IPostsService postService)
         {
             _logger = logger;
             _context = context;
+            _postService = postService;
         }
 
         public async Task<IActionResult> IndexAsync()
         {
-            var allPosts = await _context.Posts
-            .Where(p => !p.IsDeleted)
-            .Include(p => p.User)
-            .Include(p => p.Likes)
-            .Include(p => p.Favorites)
-            .Include(p => p.Comments).ThenInclude(c => c.User) //since each comment has a user
-            .OrderByDescending(p => p.DateCreated)
-            .ToListAsync();
-
-            // Log the posts for debugging
-            _logger.LogInformation($"Found {allPosts.Count} posts");
-            foreach (var post in allPosts)
-            {
-                _logger.LogInformation($"Post ID: {post.Id}, Content: {post.Content?.Substring(0, Math.Min(50, post.Content?.Length ?? 0))}");
-            }
+            var allPosts = await _postService.GetAllPostsAsync();
 
             return View(allPosts);
         }
@@ -56,28 +45,7 @@ namespace LyfeApp.Controllers
                 UserId = loggedInUser
             };
 
-            //check and save image
-            if (createdPost.Image != null && createdPost.Image.Length > 0)
-            {
-                string rootFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                if (createdPost.Image.ContentType.Contains("image"))
-                {
-                    string rootFolderPathImages = Path.Combine(rootFolderPath, "images/uploaded");
-                    Directory.CreateDirectory(rootFolderPathImages);
-
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(createdPost.Image.FileName);
-                    string filePath = Path.Combine(rootFolderPathImages, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                        await createdPost.Image.CopyToAsync(stream);
-
-                    //Set the URL to the newPost object
-                    newPost.ImageUrl = "/images/uploaded/" + fileName;
-                }
-            }
-
-            await _context.Posts.AddAsync(newPost);
-            await _context.SaveChangesAsync();
+            await _postService.CreatePostAsync(newPost, createdPost.Image);
 
             return RedirectToAction("Index");
         }
@@ -88,27 +56,7 @@ namespace LyfeApp.Controllers
         {
             int loggedInUser = 1;
 
-            //check if user had liked the post. find the like with the same post and user id
-            var like = await _context.Likes
-            .Where(l => l.PostId == postLikesDto.PostId && l.UserId == loggedInUser)
-            .FirstOrDefaultAsync();
-
-            if (like != null)  //user already liked so we want to dislike
-            {
-                _context.Likes.Remove(like);
-                await _context.SaveChangesAsync();
-            }
-            else  //no like (null). add a like
-            {
-                var newLike = new LikeModel()
-                {
-                    PostId = postLikesDto.PostId,
-                    UserId = loggedInUser
-                };
-
-                await _context.Likes.AddAsync(newLike);
-                await _context.SaveChangesAsync();
-            }
+            await _postService.TogglePostLikeAsync(postLikesDto.PostId, loggedInUser);
 
             return RedirectToAction("Index");
         }
@@ -127,8 +75,7 @@ namespace LyfeApp.Controllers
                 UserId = loggedInUser
             };
 
-            await _context.Comments.AddAsync(newComment);
-            await _context.SaveChangesAsync();
+            await _postService.CreateCommentAsync(newComment);
 
             return RedirectToAction("Index");
         }
@@ -137,17 +84,9 @@ namespace LyfeApp.Controllers
         public async Task<IActionResult> DeleteComment(DeleteCommentDto comment)
         {
             //hakhod mel ui el comment id
-            var commentToBeDeleted = await _context.Comments.FirstOrDefaultAsync(c => c.Id == comment.Id);
-
-            if (commentToBeDeleted != null)
-            {
-                _context.Comments.Remove(commentToBeDeleted);
-                await _context.SaveChangesAsync();
-            }
-
+            await _postService.DeleteCommentAsync(comment.CommentId);
 
             return RedirectToAction("Index");
-
         }
 
         [HttpPost]
@@ -155,28 +94,7 @@ namespace LyfeApp.Controllers
         {
             int loggedInUser = 1;
 
-            //check if user had liked the post. find the like with the same post and user id
-            var favorite = await _context.Favorites
-            .Where(f => f.PostId == postFavDto.PostId && f.UserId == loggedInUser)
-            .FirstOrDefaultAsync();
-
-            if (favorite != null)  //user already favored so we want to remove
-            {
-                _context.Favorites.Remove(favorite);
-                await _context.SaveChangesAsync();
-            }
-            else  //no like (null). add a like
-            {
-                var newFavorite = new FavoriteModel()
-                {
-                    DateCreated = DateTime.Now,
-                    PostId = postFavDto.PostId,
-                    UserId = loggedInUser
-                };
-
-                await _context.Favorites.AddAsync(newFavorite);
-                await _context.SaveChangesAsync();
-            }
+            await _postService.TogglePostFavoriteAsync(postFavDto.PostId, loggedInUser);
 
             return RedirectToAction("Index");
         }
@@ -184,16 +102,7 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> PostDelete(DeletePostDto postdto)
         {
-            var toBeDeleted = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postdto.PostId);
-
-            if (toBeDeleted != null)
-            {
-                // _context.Posts.Remove(toBeDeleted);     HARD DELETION
-                // await _context.SaveChangesAsync();
-                toBeDeleted.IsDeleted = true;
-                _context.Posts.Update(toBeDeleted);
-                await _context.SaveChangesAsync();
-            }
+            await _postService.DeletePostAsync(postdto.PostId);
             
             return RedirectToAction("Index");
         }
