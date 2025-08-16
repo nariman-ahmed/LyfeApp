@@ -26,7 +26,14 @@ namespace LyfeApp.Controllers
             int loggedInUserId = 1;
             var allPosts = await _postService.GetAllPostsAsync(loggedInUserId);
 
-            return View(allPosts);
+            return View(allPosts);    //sent to index.cshtml zay el function name
+        }
+
+        public async Task<IActionResult> PostDetails(int postId)
+        {
+            var post = await _postService.GetPostByIdAsync(postId);
+
+            return View(post);   //what this means is that in the Views, in the home folder you must have a view with the same name as the method, and thats where the post will be sent
         }
 
         [HttpPost]

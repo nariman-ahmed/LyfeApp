@@ -33,6 +33,18 @@ namespace LyfeApp.Data.Services
             return allPosts;
         }
 
+        public async Task<PostModel> GetPostByIdAsync(int postId)
+        {
+            var post = await _context.Posts
+            .Include(p => p.User)
+            .Include(p => p.Comments).ThenInclude(c => c.User)
+            .Include(p => p.Likes)
+            .Include(p => p.Favorites)
+            .FirstOrDefaultAsync(p => p.Id == postId);
+
+            return post;
+        }
+
         public async Task<List<PostModel>> GetAllFavoritedPostsAsync(int loggedInUserId)
         {
             var allFavoritedPosts = await _context.Favorites
@@ -41,8 +53,8 @@ namespace LyfeApp.Data.Services
                     .ThenInclude(c => c.User)
                 .Include(f => f.Post.Likes)
                 .Include(f => f.Post.Favorites)
-                .Where(n => n.UserId == loggedInUserId && 
-                    !n.Post.IsDeleted && 
+                .Where(n => n.UserId == loggedInUserId &&
+                    !n.Post.IsDeleted &&
                     n.Post.NumReports < 5)
                 .OrderByDescending(f => f.DateCreated)
                 .Select(n => n.Post)
