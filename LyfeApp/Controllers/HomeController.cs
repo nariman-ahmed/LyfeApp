@@ -23,7 +23,8 @@ namespace LyfeApp.Controllers
 
         public async Task<IActionResult> IndexAsync()
         {
-            var allPosts = await _postService.GetAllPostsAsync();
+            int loggedInUserId = 1;
+            var allPosts = await _postService.GetAllPostsAsync(loggedInUserId);
 
             return View(allPosts);
         }

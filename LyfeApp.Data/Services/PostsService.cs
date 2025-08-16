@@ -19,10 +19,10 @@ namespace LyfeApp.Data.Services
             _context = context;
         }
 
-        public async Task<List<PostModel>> GetAllPostsAsync()
+        public async Task<List<PostModel>> GetAllPostsAsync(int loggedInUserId)
         {
             var allPosts = await _context.Posts
-                .Where(n => n.NumReports < 5 && !n.IsDeleted)
+                .Where(n => n.UserId == loggedInUserId && n.NumReports < 5 && !n.IsDeleted)
                 .Include(n => n.User)
                 .Include(n => n.Likes)
                 .Include(n => n.Favorites)

@@ -9,7 +9,7 @@ namespace LyfeApp.Data.Services
 {
     public interface IPostsService
     {
-        Task<List<PostModel>> GetAllPostsAsync();
+        Task<List<PostModel>> GetAllPostsAsync(int loggedInUserId);
 
         Task<List<PostModel>> GetAllFavoritedPostsAsync(int loggedInUserId);
 
