@@ -1,14 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LyfeApp.Data.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace LyfeApp.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<UserModel, IdentityRole<int>, int>
     {
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -21,7 +18,7 @@ namespace LyfeApp.Data
         public DbSet<LikeModel> Likes { get; set; }
         public DbSet<CommentModel> Comments { get; set; }
         public DbSet<FavoriteModel> Favorites { get; set; }
-        
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -89,6 +86,14 @@ namespace LyfeApp.Data
 
             base.OnModelCreating(modelBuilder);
 
+            //Customize the ASP.NET identity model table names
+            modelBuilder.Entity<UserModel>().ToTable("Users");
+            modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles");
+            modelBuilder.Entity<IdentityUserRole<int>>().ToTable("UserRoles");
+            modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
+            modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
+            modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
+            modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
         }
 
     }

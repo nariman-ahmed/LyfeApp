@@ -1,14 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace LyfeApp.Data.Models
 {
-    public class UserModel
+    public class UserModel : IdentityUser<int>  //we replaced the basic IdentityUser class with this as we wanted to extend it
     {
         public int Id { get; set; }
+        /*el primary key type hena is int (id) bas fe identity user its string
+        and also identity user already has id attribute fa fee repetition. to solve this, instead of deleting 
+        this attribute and having to delete any reference in the whole app of it, we can just change
+        the primary key type of identity user to int but we would also have to set it to int
+        for the class user roles. so we do that in program.cs and appdbcontext*/
 
         public string FullName { get; set; }
 

@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using LyfeApp.Data;
 using LyfeApp.Data.Helpers;
 using LyfeApp.Data.Services;
+using Microsoft.AspNetCore.Identity;
+using LyfeApp.Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,14 @@ builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
+
+//identity config
+builder.Services.AddIdentity<UserModel, IdentityRole<int>>()
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -36,6 +46,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapStaticAssets();
 
