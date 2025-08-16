@@ -33,6 +33,25 @@ namespace LyfeApp.Data.Services
             return allPosts;
         }
 
+        public async Task<List<PostModel>> GetAllFavoritedPostsAsync(int loggedInUserId)
+        {
+            var allFavoritedPosts = await _context.Favorites
+                .Include(f => f.Post.User)
+                .Include(f => f.Post.Comments)
+                    .ThenInclude(c => c.User)
+                .Include(f => f.Post.Likes)
+                .Include(f => f.Post.Favorites)
+                .Where(n => n.UserId == loggedInUserId && 
+                    !n.Post.IsDeleted && 
+                    n.Post.NumReports < 5)
+                .OrderByDescending(f => f.DateCreated)
+                .Select(n => n.Post)
+                .ToListAsync();
+
+            return allFavoritedPosts;
+        }
+
+
         public async Task CreateCommentAsync(CommentModel comment)
         {
             await _context.Comments.AddAsync(comment);
@@ -88,7 +107,8 @@ namespace LyfeApp.Data.Services
                 var newFavorite = new FavoriteModel()
                 {
                     PostId = postId,
-                    UserId = userId
+                    UserId = userId,
+                    DateCreated = DateTime.Now
                 };
                 await _context.Favorites.AddAsync(newFavorite);
                 await _context.SaveChangesAsync();

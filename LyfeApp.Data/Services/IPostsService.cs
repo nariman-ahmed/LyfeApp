@@ -11,6 +11,8 @@ namespace LyfeApp.Data.Services
     {
         Task<List<PostModel>> GetAllPostsAsync();
 
+        Task<List<PostModel>> GetAllFavoritedPostsAsync(int loggedInUserId);
+
         Task<PostModel> CreatePostAsync(PostModel post);
 
         Task DeletePostAsync(int postId);

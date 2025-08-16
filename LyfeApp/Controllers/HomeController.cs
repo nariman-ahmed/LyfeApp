@@ -12,15 +12,11 @@ namespace LyfeApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly ApplicationDbContext _context;
         private readonly IPostsService _postService;
         private readonly IFilesService _filesService;
 
         public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IPostsService postService, IFilesService filesService)
         {
-            _logger = logger;
-            _context = context;
             _postService = postService;
             _filesService = filesService;
         }
