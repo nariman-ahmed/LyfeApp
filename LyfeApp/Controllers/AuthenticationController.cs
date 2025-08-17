@@ -4,6 +4,7 @@ using LyfeApp.Data.DTO.Authentication;
 using LyfeApp.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CircleApp.Controllers
 {
@@ -11,8 +12,8 @@ namespace CircleApp.Controllers
     {
         private readonly UserManager<UserModel> _userManager;
         private readonly SignInManager<UserModel> _signInManager;
-        public AuthenticationController(UserManager<UserModel> userManager, 
-            SignInManager<UserModel> signInManager) 
+        public AuthenticationController(UserManager<UserModel> userManager,
+            SignInManager<UserModel> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -106,6 +107,13 @@ namespace CircleApp.Controllers
             // Sign in the user
             await _signInManager.SignInAsync(savedUser, isPersistent: false);
             return RedirectToAction("Index", "Home");
+        }
+
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login");
         }
     }
 }
