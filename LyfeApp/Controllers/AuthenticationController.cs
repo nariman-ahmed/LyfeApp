@@ -23,6 +23,27 @@ namespace CircleApp.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginDto loginDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(loginDto);  //hayraga3 el dto lel view 3shan yebayen el errors
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(loginDto.Email, loginDto.Password, false, false);
+            //first false is for the isPersistent
+            //2nd one is for if u want to log out the user after incorrect loding details.
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ModelState.AddModelError("", "Invalid login attempt");
+            return View(loginDto);
+        }
+
         public async Task<IActionResult> Register()
         {
             return View();
