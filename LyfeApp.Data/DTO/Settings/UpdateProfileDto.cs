@@ -11,7 +11,6 @@ namespace LyfeApp.Data.DTO.Settings
         //ex->  <...name="EmailAddress"...> BAS MSH CASE SENSITIVE
         public string Fullname { get; set; }
         public string Username { get; set; }
-        public string EmailAddress { get; set; }
         public string Bio { get; set; }
     }
 }

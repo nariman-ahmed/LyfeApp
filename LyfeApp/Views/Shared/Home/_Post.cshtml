@@ -17,13 +17,16 @@
         displayTime = "Just Now";
     }
 
-    bool isLiked = Model.Likes.Any(l => l.UserId ==1);
-    bool isFavorited = Model.Favorites.Any(f => f.UserId ==1);
+    int loggedInUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int parsedId) ? parsedId : 0;
+
+    bool isLiked = Model.Likes.Any(l => l.UserId == loggedInUserId);
+    bool isFavorited = Model.Favorites.Any(f => f.UserId == loggedInUserId);
 
     string defaultUserPic = "~/images/avatar/user.png";
 
     bool showAllComments = ViewData["ShowAllComments"] as bool? ?? false;
     @* ViewData di data bastelemha men another view, not the backend *@
+
 }
 
 <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">

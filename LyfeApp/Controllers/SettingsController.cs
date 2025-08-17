@@ -9,6 +9,8 @@ using LyfeApp.Data.Services;
 using LyfeApp.Data.Models;
 using LyfeApp.Data.DTO.Settings;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace LyfeApp.Controllers
 {
@@ -17,46 +19,42 @@ namespace LyfeApp.Controllers
     {
         private readonly IUserService _usersService;
         private readonly IFilesService _filesService;
-        public SettingsController(IUserService usersService, IFilesService filesService)
+        private readonly UserManager<UserModel> _userManager;
+        public SettingsController(IUserService usersService, IFilesService filesService, UserManager<UserModel> userManager)
         {
             _usersService = usersService;
             _filesService = filesService;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
         {
-            var loggedInUserId = 1;
-            var currentUser = await _usersService.GetUserAsync(loggedInUserId);
-            return View(currentUser);
+            //var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // name identifier gets the user id
+            //when someone logs in, asp automatically created the object "User"
+            //containing their claims and identity information which we can use
+            //throughout the whole codebase.
+            
+            var loggedInUser = await _userManager.GetUserAsync(User);
+            return View(loggedInUser);
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateProfilePic(UpdateProfilePicDto updateDto)
         {
-            var loggedInUserId = 1;
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(loggedInUserId))
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToAction("Login", "Authentication");
+            }
 
             var uploadedImageUrl = await _filesService.UploadImageAsync(updateDto.NewProfilePic, ImageFileType.ProfilePicture);
 
-            await _usersService.UpdateUserProfilePic(loggedInUserId, uploadedImageUrl);
+            await _usersService.UpdateUserProfilePic(int.Parse(loggedInUserId), uploadedImageUrl);
 
             return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateProfile(UpdateProfileDto profileDto)
-        {
-            // int loggedInUserId = 1;
-
-            // await _usersService.UpdateProfile(loggedInUserId, profileDto.fullname, profileDto.username, profileDto.email, profileDto.bio);
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UpdatePassword(UpdatePasswordDto passwordDto)
-        {
-            return RedirectToAction("Index");
-
         }
 
     }

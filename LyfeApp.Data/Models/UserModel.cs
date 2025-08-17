@@ -16,6 +16,7 @@ namespace LyfeApp.Data.Models
         public string FullName { get; set; }
 
         public string? ProfilePicUrl { get; set; }
+        public string? Bio { get; set; }
         public bool IsDeleted { get; set; }
 
 

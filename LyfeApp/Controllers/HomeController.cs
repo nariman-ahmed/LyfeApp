@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using LyfeApp.Data.DTO.Home;
 using LyfeApp.Data.Services;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 
 namespace LyfeApp.Controllers
@@ -24,8 +25,13 @@ namespace LyfeApp.Controllers
 
         public async Task<IActionResult> IndexAsync()
         {
-            int loggedInUserId = 1;
-            var allPosts = await _postService.GetAllPostsAsync(loggedInUserId);
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(loggedInUserId))
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToAction("Login", "Authentication");
+            }
+            var allPosts = await _postService.GetAllPostsAsync(int.Parse(loggedInUserId));
 
             return View(allPosts);    //sent to index.cshtml zay el function name
         }
@@ -40,7 +46,12 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePost(CreatedPostDto createdPost)
         {
-            int loggedInUser = 1;
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(loggedInUserId))
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToAction("Login", "Authentication");
+            }
 
             var imageUploadPath = await _filesService.UploadImageAsync(createdPost.Image, ImageFileType.PostImage);
 
@@ -51,7 +62,7 @@ namespace LyfeApp.Controllers
                 DateUpdated = DateTime.Now,
                 ImageUrl = imageUploadPath,
                 NumReports = 0,
-                UserId = loggedInUser
+                UserId = int.Parse(loggedInUserId)
             };
 
             await _postService.CreatePostAsync(newPost);
@@ -63,9 +74,14 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostLike(PostLikesDto postLikesDto)
         {
-            int loggedInUser = 1;
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(loggedInUserId))
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToAction("Login", "Authentication");
+            }
 
-            await _postService.TogglePostLikeAsync(postLikesDto.PostId, loggedInUser);
+            await _postService.TogglePostLikeAsync(postLikesDto.PostId, int.Parse(loggedInUserId));
 
             return RedirectToAction("Index");
         }
@@ -73,7 +89,12 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateComment(CreateNewCommentDto commentDto)
         {
-            int loggedInUser = 1;
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(loggedInUserId))
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToAction("Login", "Authentication");
+            }
 
             var newComment = new CommentModel()
             {
@@ -81,7 +102,7 @@ namespace LyfeApp.Controllers
                 DateCreated = DateTime.Now,
                 DateUpdated = DateTime.Now,
                 PostId = commentDto.PostId,
-                UserId = loggedInUser
+                UserId = int.Parse(loggedInUserId)
             };
 
             await _postService.CreateCommentAsync(newComment);
@@ -101,9 +122,9 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostFavorites(PostFavoritesDto postFavDto)
         {
-            int loggedInUser = 1;
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            await _postService.TogglePostFavoriteAsync(postFavDto.PostId, loggedInUser);
+            await _postService.TogglePostFavoriteAsync(postFavDto.PostId, int.Parse(loggedInUserId));
 
             return RedirectToAction("Index");
         }

@@ -31,34 +31,5 @@ namespace LyfeApp.Data.Services
             }
         }
 
-        // public async Task UpdateProfile(int loggedInUserId, string fullname, string username, string email, string bio)
-        // {
-        //     var user = _context.Users.FirstOrDefaultAsync(u => u.Id == loggedInUserId);
-
-        //     if (user != null)
-        //     {
-        //         if (fullname != null)
-        //         {
-        //             user.Fullname = fullname;
-        //         }
-        //         if (username != null)
-        //         {
-        //             user.Username = username;
-        //         }
-        //         if (email != null)
-        //         {
-        //             user.Email = email;
-        //         }
-        //         if (bio != null)
-        //         {
-        //             user.Bio = bio;
-        //         }
-
-        //         _context.Users.Update(user);
-        //         await _context.SaveChangesAsync();
-        //     }
-        // }
-
-        
     }
 }
