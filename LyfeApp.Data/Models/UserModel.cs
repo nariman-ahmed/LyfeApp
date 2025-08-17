@@ -6,7 +6,7 @@ namespace LyfeApp.Data.Models
 {
     public class UserModel : IdentityUser<int>  //we replaced the basic IdentityUser class with this as we wanted to extend it
     {
-        public int Id { get; set; }
+        // public int Id { get; set; }
         /*el primary key type hena is int (id) bas fe identity user its string
         and also identity user already has id attribute fa fee repetition. to solve this, instead of deleting 
         this attribute and having to delete any reference in the whole app of it, we can just change

@@ -17,21 +17,34 @@ builder.Services.AddScoped<IPostsService, PostsService>();
 builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
-var app = builder.Build();
-
 //identity config
-builder.Services.AddIdentity<UserModel, IdentityRole<int>>()
+builder.Services.AddIdentity<UserModel, IdentityRole<int>>(options =>
+{
+    //Password settings
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 4;
+})
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
+var app = builder.Build();
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await dbContext.Database.MigrateAsync();
     await DbInitializer.SeedAsync(dbContext);
+
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserModel>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    await DbInitializer.SeedUsersAndRolesAsync(userManager, roleManager);
+
 }
 
 // Configure the HTTP request pipeline.
