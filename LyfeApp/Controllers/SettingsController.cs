@@ -8,9 +8,11 @@ using Microsoft.Extensions.Logging;
 using LyfeApp.Data.Services;
 using LyfeApp.Data.Models;
 using LyfeApp.Data.DTO.Settings;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LyfeApp.Controllers
 {
+    [Authorize]
     public class SettingsController : Controller
     {
         private readonly IUserService _usersService;
@@ -54,7 +56,7 @@ namespace LyfeApp.Controllers
         public async Task<IActionResult> UpdatePassword(UpdatePasswordDto passwordDto)
         {
             return RedirectToAction("Index");
-            
+
         }
 
     }

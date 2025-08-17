@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LyfeApp.Data.DTO.Home;
 using LyfeApp.Data.Services;
-
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace LyfeApp.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IPostsService _postService;
@@ -111,7 +112,7 @@ namespace LyfeApp.Controllers
         public async Task<IActionResult> PostDelete(DeletePostDto postdto)
         {
             await _postService.DeletePostAsync(postdto.PostId);
-            
+
             return RedirectToAction("Index");
         }
     }

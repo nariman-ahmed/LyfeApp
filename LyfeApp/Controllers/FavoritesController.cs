@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using LyfeApp.Data.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace LyfeApp.Controllers
 {
+    [Authorize]
     public class FavoritesController : Controller
     {
         private readonly IPostsService _postsService;
