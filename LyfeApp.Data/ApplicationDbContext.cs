@@ -18,7 +18,7 @@ namespace LyfeApp.Data
         public DbSet<LikeModel> Likes { get; set; }
         public DbSet<CommentModel> Comments { get; set; }
         public DbSet<FavoriteModel> Favorites { get; set; }
-
+        public DbSet<StoryModel> Stories { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,6 +39,12 @@ namespace LyfeApp.Data
                 .WithMany(p => p.Likes)
                 .HasForeignKey(l => l.PostId)
                 .OnDelete(DeleteBehavior.Cascade);   //if a post is deleted, all likes are deleted
+
+            modelBuilder.Entity<StoryModel>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.Stories)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<LikeModel>()
                 .HasOne(l => l.User)

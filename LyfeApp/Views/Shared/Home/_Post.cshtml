@@ -46,12 +46,18 @@
         <div class="-mr-1">
             <button type="button" class="button-icon w-8 h-8"> <ion-icon class="text-xl" name="ellipsis-horizontal"></ion-icon> </button>
             <div class="w-[245px] post-options-dropdown" uk-dropdown="pos: bottom-right; animation: uk-animation-scale-up uk-transform-origin-top-right; animate-out: true; mode: click">
-                <form>
-                    <input type="hidden" name="PostId" value="@Model.Id" />
-                    <button type="submit" class="hover:!bg-red-50 icon-link">
-                        <ion-icon name="lock-closed-outline"></ion-icon>  Set as private
-                    </button>
-                </form>
+                
+                @if(Model.UserId == loggedInUserId)
+                {
+                    <form asp-controller="Home" asp-action="TogglePostPrivacy">
+                        <input type="hidden" name="PostId" value="@Model.Id" />
+                        <button type="submit" class="hover:!bg-red-50 icon-link">
+                            <ion-icon name="@(Model.IsPrivate ? "lock-closed-outline" : "lock-open-outline")"></ion-icon>
+                            Set as @(Model.IsPrivate ? "public" : "private")
+                        </button>
+                    </form>
+                }
+                
 
                 <hr>
                 

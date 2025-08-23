@@ -2,7 +2,6 @@ using LyfeApp.Data.Helpers.Constants;
 using LyfeApp.Data.Models;
 using LyfeApp.Data.DTO.Authentication;
 using LyfeApp.Data.DTO.Settings;
-using LyfeApp.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;

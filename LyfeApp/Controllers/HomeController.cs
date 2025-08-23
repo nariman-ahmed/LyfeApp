@@ -130,6 +130,16 @@ namespace LyfeApp.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> TogglePostPrivacy(PostPrivacyDto postPrivacyDto)
+        {
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _postService.TogglePostPrivacyAsync(postPrivacyDto.PostId, int.Parse(loggedInUserId));
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
         public async Task<IActionResult> PostDelete(DeletePostDto postdto)
         {
             await _postService.DeletePostAsync(postdto.PostId);

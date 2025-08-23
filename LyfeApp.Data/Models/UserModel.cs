@@ -21,6 +21,7 @@ namespace LyfeApp.Data.Models
 
 
         public ICollection<PostModel> Posts { get; set; } = new List<PostModel>();
+        public ICollection<StoryModel> Stories { get; set; } = new List<StoryModel>();
         public ICollection<LikeModel> Likes { get; set; } = new List<LikeModel>();
         public ICollection<CommentModel> Comments { get; set; } = new List<CommentModel>();
         public ICollection<FavoriteModel> Favorites { get; set; } = new List<FavoriteModel>();

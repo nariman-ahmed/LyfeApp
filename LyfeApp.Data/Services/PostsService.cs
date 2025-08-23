@@ -22,7 +22,7 @@ namespace LyfeApp.Data.Services
         public async Task<List<PostModel>> GetAllPostsAsync(int loggedInUserId)
         {
             var allPosts = await _context.Posts
-                .Where(n => n.UserId == loggedInUserId && n.NumReports < 5 && !n.IsDeleted)
+                .Where(n => n.UserId == loggedInUserId && n.NumReports < 5 && !n.IsDeleted && !n.IsPrivate)
                 .Include(n => n.User)
                 .Include(n => n.Likes)
                 .Include(n => n.Favorites)
@@ -123,6 +123,21 @@ namespace LyfeApp.Data.Services
                     DateCreated = DateTime.Now
                 };
                 await _context.Favorites.AddAsync(newFavorite);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task TogglePostPrivacyAsync(int postId, int userId)
+        {
+            //check if user has already favorited the post
+            var post = await _context.Posts
+                .Where(p => p.Id == postId && p.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            if (post != null)
+            {
+                post.IsPrivate = !post.IsPrivate;
+                _context.Posts.Update(post);
                 await _context.SaveChangesAsync();
             }
         }
