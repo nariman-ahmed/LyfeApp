@@ -12,31 +12,24 @@ using LyfeApp.Data.DTO.Stories;
 using System.Security.Claims;
 using LyfeApp.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LyfeApp.Controllers
 {
     public class StoriesController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly IFilesService _filesService;
+        private readonly IStoriesService _storiesService;
 
-        public StoriesController(ApplicationDbContext context, IFilesService filesService)
+        public StoriesController(IFilesService filesService, IStoriesService storiesService)
         {
-            _context = context;
             _filesService = filesService;
+            _storiesService = storiesService;
         }
 
         [Authorize]
-        public async Task<IActionResult> Index()
-        {
-            var allStories = await _context.Stories
-            .Include(s => s.User)
-            .OrderByDescending(s => s.DateCreated)
-            .ToListAsync();
-            return View(allStories);
-        }
-
-        public async Task<IActionResult> CreateStory(CreatedStoryDto createdStory)
+        [HttpPost]
+        public async Task<IActionResult> CreateStoryAsync(CreatedStoryDto createdStory)
         {
             var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(loggedInUserId))
@@ -56,8 +49,7 @@ namespace LyfeApp.Controllers
                 UserId = int.Parse(loggedInUserId)
             };
 
-            await _context.Stories.AddAsync(story);
-            await _context.SaveChangesAsync();
+            await _storiesService.CreateStoryAsync(story);
 
             return RedirectToAction("Index", "Home");
         }

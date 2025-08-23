@@ -26,7 +26,7 @@
                             <span id="storyUploadBtn" class="text-white mt-2">Browse to Upload image</span>
                             
                         </label>
-                        <img id="storyPreview" />
+                        <img id="storyPreview" class="w-full h-full object-cover absolute top-0 left-0 hidden" />
                     </div>
                 </div>
                 <div class="flex justify-between items-center">
@@ -50,15 +50,20 @@
     document.getElementById('storyUpload').addEventListener('change', (event) => {
         const file = event.target.files[0];
         const storyPreview = document.getElementById('storyPreview');
+        const label = storyPreview.previousElementSibling;
 
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 storyPreview.src = e.target.result;
+                storyPreview.classList.remove('hidden');
+                label.classList.add('hidden');
             }
             reader.readAsDataURL(file);
         } else {
             storyPreview.src = "";
+            storyPreview.classList.add('hidden');
+            label.classList.remove('hidden');
         }
     });
 </script>

@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IPostsService, PostsService>();
 builder.Services.AddScoped<IFilesService, FilesService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IStoriesService, StoriesService>();
 
 //identity config
 builder.Services.AddIdentity<UserModel, IdentityRole<int>>(options =>
