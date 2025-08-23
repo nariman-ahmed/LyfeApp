@@ -12,6 +12,7 @@ namespace LyfeApp.Data.Services
 
         Task UpdateUserProfilePic(int loggedInUserId, string newImageUrl);
 
-        //Task UpdateProfile(int loggedInUserId, string fullname, string username, string email, string bio);
+        Task<List<PostModel>> GetUserPostsAsync(int userId);
+
     }
 }

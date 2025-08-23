@@ -31,5 +31,20 @@ namespace LyfeApp.Data.Services
             }
         }
 
+        public async Task<List<PostModel>> GetUserPostsAsync(int userId)
+        {
+            var allPosts = await _context.Posts
+                .Where(n => n.UserId == userId && n.NumReports < 5 && !n.IsDeleted && !n.IsPrivate)
+                .Include(n => n.User)
+                .Include(n => n.Likes)
+                .Include(n => n.Favorites)
+                .Include(n => n.Comments).ThenInclude(n => n.User)
+                .OrderByDescending(n => n.DateCreated)
+                .ToListAsync();
+
+            return allPosts;
+        }
+    
+
     }
 }
