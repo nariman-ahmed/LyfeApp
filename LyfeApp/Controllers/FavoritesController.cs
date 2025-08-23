@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace LyfeApp.Controllers
 {
     [Authorize]
-    public class FavoritesController : Controller
+    public class FavoritesController : BaseController
     {
         private readonly IPostsService _postsService;
         public FavoritesController(IPostsService postsService)
@@ -25,13 +25,14 @@ namespace LyfeApp.Controllers
             /*kol controller lee view. lazem gowa el View folder a3mel folder gdeed esmo Favorites
             wa7ot fee file index 3shan da el hayeb2a rendered mel funtion di zay ma fee folder esmo Home
             fee file index.cshtml how el ehna hateen fee layout el home!*/
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(loggedInUserId))
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
             {
                 // If the user is not logged in, redirect to the login page or handle accordingly
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToLogin();
             }
-            var allFavPosts = await _postsService.GetAllFavoritedPostsAsync(int.Parse(loggedInUserId));
+
+            var allFavPosts = await _postsService.GetAllFavoritedPostsAsync(loggedInUserId.Value);
 
             return View(allFavPosts);
         }

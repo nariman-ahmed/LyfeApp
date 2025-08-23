@@ -16,7 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LyfeApp.Controllers
 {
-    public class StoriesController : Controller
+    public class StoriesController : BaseController
     {
         private readonly IFilesService _filesService;
         private readonly IStoriesService _storiesService;
@@ -31,11 +31,11 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateStoryAsync(CreatedStoryDto createdStory)
         {
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(loggedInUserId))
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
             {
                 // If the user is not logged in, redirect to the login page or handle accordingly
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToLogin();
             }
 
             var imageUploadPath = await _filesService.UploadImageAsync(createdStory.Image, ImageFileType.StoryImage);
@@ -46,7 +46,7 @@ namespace LyfeApp.Controllers
                 ImageUrl = imageUploadPath,
                 DateCreated = DateTime.UtcNow,
                 IsDeleted = false,
-                UserId = int.Parse(loggedInUserId)
+                UserId = loggedInUserId.Value
             };
 
             await _storiesService.CreateStoryAsync(story);

@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Identity;
 namespace LyfeApp.Controllers
 {
     [Authorize]
-    public class SettingsController : Controller
+    public class SettingsController : BaseController
     {
         private readonly IUserService _usersService;
         private readonly IFilesService _filesService;
@@ -42,17 +42,16 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateProfilePic(UpdateProfilePicDto updateDto)
         {
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(loggedInUserId))
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
             {
                 // If the user is not logged in, redirect to the login page or handle accordingly
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToLogin();
             }
 
             var uploadedImageUrl = await _filesService.UploadImageAsync(updateDto.NewProfilePic, ImageFileType.ProfilePicture);
 
-            await _usersService.UpdateUserProfilePic(int.Parse(loggedInUserId), uploadedImageUrl);
+            await _usersService.UpdateUserProfilePic(loggedInUserId.Value, uploadedImageUrl);
 
             return RedirectToAction("Index");
         }

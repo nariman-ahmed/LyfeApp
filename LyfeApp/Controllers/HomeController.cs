@@ -12,12 +12,12 @@ using System.Security.Claims;
 namespace LyfeApp.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly IPostsService _postService;
         private readonly IFilesService _filesService;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IPostsService postService, IFilesService filesService)
+        public HomeController(IPostsService postService, IFilesService filesService)
         {
             _postService = postService;
             _filesService = filesService;
@@ -25,13 +25,14 @@ namespace LyfeApp.Controllers
 
         public async Task<IActionResult> IndexAsync()
         {
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(loggedInUserId))
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
             {
                 // If the user is not logged in, redirect to the login page or handle accordingly
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToLogin();
             }
-            var allPosts = await _postService.GetAllPostsAsync(int.Parse(loggedInUserId));
+
+            var allPosts = await _postService.GetAllPostsAsync(loggedInUserId.Value);
 
             return View(allPosts);    //sent to index.cshtml zay el function name
         }
@@ -46,11 +47,11 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePost(CreatedPostDto createdPost)
         {
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(loggedInUserId))
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
             {
                 // If the user is not logged in, redirect to the login page or handle accordingly
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToLogin();
             }
 
             var imageUploadPath = await _filesService.UploadImageAsync(createdPost.Image, ImageFileType.PostImage);
@@ -62,7 +63,7 @@ namespace LyfeApp.Controllers
                 DateUpdated = DateTime.Now,
                 ImageUrl = imageUploadPath,
                 NumReports = 0,
-                UserId = int.Parse(loggedInUserId)
+                UserId = loggedInUserId.Value
             };
 
             await _postService.CreatePostAsync(newPost);
@@ -74,14 +75,14 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostLike(PostLikesDto postLikesDto)
         {
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(loggedInUserId))
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
             {
                 // If the user is not logged in, redirect to the login page or handle accordingly
-                return RedirectToAction("Login", "Authentication");
+                return RedirectToLogin();
             }
 
-            await _postService.TogglePostLikeAsync(postLikesDto.PostId, int.Parse(loggedInUserId));
+            await _postService.TogglePostLikeAsync(postLikesDto.PostId, loggedInUserId.Value);
 
             return RedirectToAction("Index");
         }
@@ -89,12 +90,12 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateComment(CreateNewCommentDto commentDto)
         {
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(loggedInUserId))
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
             {
                 // If the user is not logged in, redirect to the login page or handle accordingly
-                return RedirectToAction("Login", "Authentication");
-            }
+                return RedirectToLogin();
+            }   
 
             var newComment = new CommentModel()
             {
@@ -102,7 +103,7 @@ namespace LyfeApp.Controllers
                 DateCreated = DateTime.Now,
                 DateUpdated = DateTime.Now,
                 PostId = commentDto.PostId,
-                UserId = int.Parse(loggedInUserId)
+                UserId = loggedInUserId.Value
             };
 
             await _postService.CreateCommentAsync(newComment);
@@ -122,9 +123,14 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostFavorites(PostFavoritesDto postFavDto)
         {
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToLogin();
+            }
 
-            await _postService.TogglePostFavoriteAsync(postFavDto.PostId, int.Parse(loggedInUserId));
+            await _postService.TogglePostFavoriteAsync(postFavDto.PostId, loggedInUserId.Value);
 
             return RedirectToAction("Index");
         }
@@ -132,9 +138,14 @@ namespace LyfeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> TogglePostPrivacy(PostPrivacyDto postPrivacyDto)
         {
-            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToLogin();
+            }
 
-            await _postService.TogglePostPrivacyAsync(postPrivacyDto.PostId, int.Parse(loggedInUserId));
+            await _postService.TogglePostPrivacyAsync(postPrivacyDto.PostId, loggedInUserId.Value);
 
             return RedirectToAction("Index");
         }
