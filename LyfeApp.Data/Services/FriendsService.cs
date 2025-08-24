@@ -82,15 +82,15 @@ namespace LyfeApp.Data.Services
             .ToListAsync();
 
             //we will also get the pending requests for that user
-            var pendingRequests = await _context.FriendRequests
-            .Where(f => f.ReceiverId == userId && f.Status == FriendshipStatus.Pending)
-            .Select(f => f.SenderId == userId ? f.ReceiverId : f.SenderId)
-            .ToListAsync();
+            var pendingRequestIds = await _context.FriendRequests
+                .Where(n => (n.SenderId == userId || n.ReceiverId == userId) && n.Status == FriendshipStatus.Pending)
+                .Select(n => n.SenderId == userId ? n.ReceiverId : n.SenderId)
+                .ToListAsync();
 
             // Now we need to find users who are not in the existing friends list which excludes
             //the current user, the existing friends, and the pending requests
             var suggestedFriends = await _context.Users
-            .Where(u => u.Id != userId && !existingFriendsIds.Contains(u.Id) && !pendingRequests.Contains(u.Id))
+            .Where(u => u.Id != userId && !existingFriendsIds.Contains(u.Id) && !pendingRequestIds.Contains(u.Id))
             .Select(u => new CountOfUserFriendsDto
             {
                 User = u,
