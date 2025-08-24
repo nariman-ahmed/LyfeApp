@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using LyfeApp.Data.Services;
 using Microsoft.AspNetCore.Mvc;
+using LyfeApp.Data.DTO.Friends;
+using LyfeApp.Data.Helpers.Constants;
 
 namespace LyfeApp.Controllers
 {
@@ -13,6 +15,23 @@ namespace LyfeApp.Controllers
         public FriendsController(IFriendsService friendsService)
         {
             _friendsService = friendsService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToLogin();
+            }
+
+            var friendshipDto = new FriendshipDto
+            {
+                FriendRequestsSent = await _friendsService.GetSentFriendRequestsAsync(loggedInUserId.Value),
+                FriendRequestsReceived = await _friendsService.GetReceivedFriendRequestsAsync(loggedInUserId.Value)
+            };
+            return View(friendshipDto);
         }
 
         [HttpPost]
@@ -27,6 +46,22 @@ namespace LyfeApp.Controllers
 
             await _friendsService.SendFriendRequestAsync(loggedInUserId.Value, receiverId);
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CancelFriendRequest(int requestId)
+        {
+            await _friendsService.UpdateFriendRequestAsync(requestId, FriendshipStatus.Cancelled);
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptFriendRequest(int requestId)
+        {
+            await _friendsService.UpdateFriendRequestAsync(requestId, FriendshipStatus.Accepted);
+
+            return RedirectToAction("Index");
         }
     }
 }

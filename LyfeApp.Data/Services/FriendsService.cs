@@ -18,6 +18,7 @@ namespace LyfeApp.Data.Services
         {
             _context = context;
         }
+
         public async Task SendFriendRequestAsync(int senderId, int receiverId)
         {
             //we a friend request is made, we just want to add its record to the db 
@@ -101,5 +102,31 @@ namespace LyfeApp.Data.Services
 
             return suggestedFriends;
         }
+
+        public async Task<List<FriendRequest>> GetSentFriendRequestsAsync(int userId)
+        {
+            var sentRequests = await _context.FriendRequests
+            .Include(f => f.Sender)     //include both the sender and receiver
+            .Include(f => f.Receiver)
+            .Where(f => f.SenderId == userId && f.Status == FriendshipStatus.Pending)
+            //we only want the requests that are still pending
+            .ToListAsync();
+
+            return sentRequests;
+        }
+        
+        public async Task<List<FriendRequest>> GetReceivedFriendRequestsAsync(int userId)
+        {
+            var receivedRequests = await _context.FriendRequests
+            .Include(f => f.Sender)     //include both the sender and receiver
+            .Include(f => f.Receiver)
+            .Where(f => f.ReceiverId == userId && f.Status == FriendshipStatus.Pending)
+            //we only want the requests that are still pending
+            .ToListAsync();
+
+            return receivedRequests;
+        }
+
     }
 }
+        
