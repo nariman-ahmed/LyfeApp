@@ -1,28 +1,38 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using LyfeApp.Data.Services;
 using Microsoft.AspNetCore.Mvc;
+using LyfeApp.Data.DTO.Users;
+using LyfeApp.Data.DTO.Friends;
 
 namespace LyfeApp.ViewComponents
 {
     public class SuggestedFriendsViewComponent : ViewComponent
     {
+        private readonly IFriendsService _friendsService;
+
+        public SuggestedFriendsViewComponent(IFriendsService friendsService)
+        {
+            _friendsService = friendsService;   
+        }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            // // Get the current user's friends
-            // var friends = await _friendsService.GetFriendsAsync(User.GetUserId());
+            var loggedInUserId = ((ClaimsPrincipal)User).FindFirstValue(ClaimTypes.NameIdentifier);
+            int userId = int.Parse(loggedInUserId);
+            var suggestedFriends = await _friendsService.GetSuggestedFriendsAsync(userId);
 
-            // // Get suggested friends (not friends yet)
-            // var suggestedFriends = await _friendsService.GetSuggestedFriendsAsync(User.GetUserId());
+            var suggestedFriendsVM = suggestedFriends.Select(sf => new CountOfUserFriendsVM
+            {
+                UserId = sf.User.Id,
+                FullName = sf.User.FullName,
+                ProfilePicUrl = sf.User.ProfilePicUrl,
+                FriendsCount = sf.FriendsCount
+            }).ToList();
 
-            // // Pass the data to the view
-            // return View(new SuggestedFriendsViewModel
-            // {
-            //     Friends = friends,
-            //     SuggestedFriends = suggestedFriends
-            // });
-            return View();    //el view el hayeb2a called lazem yeb2a fe folder Views/Shared/Components/SuggestedFriends(this filename - controller) bezabt.
+            return View(suggestedFriendsVM);  //el VM howa el hayetbe3et lel view component
         }
     }
 }

@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using LyfeApp.Data.Helpers.Constants;
 using LyfeApp.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using LyfeApp.Data.Services;
+using LyfeApp.Data.DTO.Users;
+
 
 namespace LyfeApp.Data.Services
 {
@@ -67,7 +70,36 @@ namespace LyfeApp.Data.Services
                 await _context.SaveChangesAsync();
             }
         }
-        
 
+        public async Task<List<CountOfUserFriendsDto>> GetSuggestedFriendsAsync(int userId)
+        {
+            //we wanna see the users current friends. friendships that have been made from: 
+            //1- either the user sending or accepting a request.
+            //and 2- if the user is the sender get the recievers and vice versa
+            var existingFriendsIds = await _context.Friendships
+            .Where(f => f.SenderId == userId || f.ReceiverId == userId)
+            .Select(f => f.SenderId == userId ? f.ReceiverId : f.SenderId)
+            .ToListAsync();
+
+            //we will also get the pending requests for that user
+            var pendingRequests = await _context.FriendRequests
+            .Where(f => f.ReceiverId == userId && f.Status == FriendshipStatus.Pending)
+            .Select(f => f.SenderId == userId ? f.ReceiverId : f.SenderId)
+            .ToListAsync();
+
+            // Now we need to find users who are not in the existing friends list which excludes
+            //the current user, the existing friends, and the pending requests
+            var suggestedFriends = await _context.Users
+            .Where(u => u.Id != userId && !existingFriendsIds.Contains(u.Id) && !pendingRequests.Contains(u.Id))
+            .Select(u => new CountOfUserFriendsDto
+            {
+                User = u,
+                FriendsCount = _context.Friendships.Count(f => f.SenderId == u.Id || f.ReceiverId == u.Id)
+            })
+            .Take(5) //limit to 5 suggested friends
+            .ToListAsync();
+
+            return suggestedFriends;
+        }
     }
 }
