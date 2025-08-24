@@ -69,6 +69,18 @@ namespace LyfeApp.Data.Services
             {
                 _context.Friendships.Remove(friendshipDb);
                 await _context.SaveChangesAsync();
+
+                //find requests
+                var requests = await _context.FriendRequests
+                    .Where(fr => (fr.SenderId == friendshipDb.SenderId && fr.ReceiverId == friendshipDb.ReceiverId) ||
+                                  (fr.SenderId == friendshipDb.ReceiverId && fr.ReceiverId == friendshipDb.SenderId))
+                    .ToListAsync();
+
+                if (requests.Any())
+                {
+                    _context.FriendRequests.RemoveRange(requests);
+                    await _context.SaveChangesAsync();
+                }
             }
         }
 
@@ -114,7 +126,7 @@ namespace LyfeApp.Data.Services
 
             return sentRequests;
         }
-        
+
         public async Task<List<FriendRequest>> GetReceivedFriendRequestsAsync(int userId)
         {
             var receivedRequests = await _context.FriendRequests
@@ -125,6 +137,17 @@ namespace LyfeApp.Data.Services
             .ToListAsync();
 
             return receivedRequests;
+        }
+
+        public async Task<List<Friendship>> GetAllFriendsAsync(int userId)
+        {
+            var allFriends = await _context.Friendships
+            .Where(f => f.SenderId == userId || f.ReceiverId == userId)
+            .Include(f => f.Sender)
+            .Include(f => f.Receiver)
+            .ToListAsync();
+
+            return allFriends;
         }
 
     }

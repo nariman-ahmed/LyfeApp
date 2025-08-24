@@ -29,7 +29,8 @@ namespace LyfeApp.Controllers
             var friendshipDto = new FriendshipDto
             {
                 FriendRequestsSent = await _friendsService.GetSentFriendRequestsAsync(loggedInUserId.Value),
-                FriendRequestsReceived = await _friendsService.GetReceivedFriendRequestsAsync(loggedInUserId.Value)
+                FriendRequestsReceived = await _friendsService.GetReceivedFriendRequestsAsync(loggedInUserId.Value),
+                Friends = await _friendsService.GetAllFriendsAsync(loggedInUserId.Value)
             };
             return View(friendshipDto);
         }
@@ -49,17 +50,18 @@ namespace LyfeApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CancelFriendRequest(int requestId)
+        public async Task<IActionResult> UpdateFriendRequest(int requestId, string status)
         {
-            await _friendsService.UpdateFriendRequestAsync(requestId, FriendshipStatus.Cancelled);
+            await _friendsService.UpdateFriendRequestAsync(requestId, status);
 
             return RedirectToAction("Index");
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> AcceptFriendRequest(int requestId)
+        public async Task<IActionResult> RemoveFriend(int friendshipId)
         {
-            await _friendsService.UpdateFriendRequestAsync(requestId, FriendshipStatus.Accepted);
+            await _friendsService.RemoveFriendAsync(friendshipId);
 
             return RedirectToAction("Index");
         }

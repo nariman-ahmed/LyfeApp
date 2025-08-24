@@ -10,5 +10,6 @@ namespace LyfeApp.Data.DTO.Friends
     {
         public List<FriendRequest> FriendRequestsSent { get; set; } = new List<FriendRequest>();
         public List<FriendRequest> FriendRequestsReceived { get; set; } = new List<FriendRequest>();
+        public List<Friendship> Friends { get; set; } = new List<Friendship>();
     }
 }

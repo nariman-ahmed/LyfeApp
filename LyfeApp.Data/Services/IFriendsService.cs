@@ -15,5 +15,6 @@ namespace LyfeApp.Data.Services
         Task<List<CountOfUserFriendsDto>> GetSuggestedFriendsAsync(int userId);
         Task<List<FriendRequest>> GetSentFriendRequestsAsync(int userId);
         Task<List<FriendRequest>> GetReceivedFriendRequestsAsync(int userId);
+        Task<List<Friendship>> GetAllFriendsAsync(int userId);
     }
 }
