@@ -71,6 +71,41 @@ namespace LyfeApp.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateComment(CreateNewCommentDto commentDto)
+        {
+            var loggedInUserId = GetUserId();
+            if (loggedInUserId == null)
+            {
+                // If the user is not logged in, redirect to the login page or handle accordingly
+                return RedirectToLogin();
+            }
+
+            var newComment = new CommentModel()
+            {
+                Content = commentDto.Content,
+                DateCreated = DateTime.Now,
+                DateUpdated = DateTime.Now,
+                PostId = commentDto.PostId,
+                UserId = loggedInUserId.Value
+            };
+
+            await _postService.CreateCommentAsync(newComment);
+
+            var post = await _postService.GetPostByIdAsync(commentDto.PostId);
+
+            return PartialView("Home/_Post", post);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(DeleteCommentDto comment)
+        {
+            //hakhod mel ui el comment id
+            await _postService.DeleteCommentAsync(comment.CommentId);
+
+            return RedirectToAction("Index");
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -90,38 +125,6 @@ namespace LyfeApp.Controllers
             return PartialView("Home/_Post", post);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateComment(CreateNewCommentDto commentDto)
-        {
-            var loggedInUserId = GetUserId();
-            if (loggedInUserId == null)
-            {
-                // If the user is not logged in, redirect to the login page or handle accordingly
-                return RedirectToLogin();
-            }   
-
-            var newComment = new CommentModel()
-            {
-                Content = commentDto.Content,
-                DateCreated = DateTime.Now,
-                DateUpdated = DateTime.Now,
-                PostId = commentDto.PostId,
-                UserId = loggedInUserId.Value
-            };
-
-            await _postService.CreateCommentAsync(newComment);
-
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteComment(DeleteCommentDto comment)
-        {
-            //hakhod mel ui el comment id
-            await _postService.DeleteCommentAsync(comment.CommentId);
-
-            return RedirectToAction("Index");
-        }
 
         [HttpPost]
         public async Task<IActionResult> TogglePostFavorites(PostFavoritesDto postFavDto)
