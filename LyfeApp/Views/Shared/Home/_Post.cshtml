@@ -29,7 +29,7 @@
 
 }
 
-<div class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
+<div id="post-@Model.Id" class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
 
     @* Post heading *@
     <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
@@ -99,8 +99,9 @@
 
         <div class="flex items-center gap-2.5">
             <form asp-controller="Home" asp-action="TogglePostLike" >
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="PostId" value="@Model.Id" />
-                <button type="submit" class="button-icon @(isLiked ? "text-red-500 bg-red-100" : "" )">
+                <button type="submit" class="button-icon like-button @(isLiked ? "text-red-500 bg-red-100" : "" )">
                     @* check if the like that exists is done by the logged in user. *@
                     <ion-icon class="text-lg" name="@(isLiked ? "heart" : "heart-outline")"></ion-icon>
                 </button>
@@ -119,8 +120,8 @@
 
         <div class="flex items-center gap-2">
             <form asp-controller="Home" asp-action="TogglePostFavorites">
-                <input type="hidden" name="postId" value="@Model.Id"/>
-                <button type="submit" class="button-icon ml-auto @(isFavorited ? "text-orange-500 bt-orange-100" : "" )">
+                <input type="hidden" name="PostId" value="@Model.Id"/>
+                <button type="submit" class="button-icon ml-auto favorite-button @(isFavorited ? "text-orange-500 bt-orange-100" : "" )">
                     <ion-icon class="text-lg" name="@(isFavorited ? "bookmark" : "bookmark-outline" )"></ion-icon>
                 </button>
             </form>

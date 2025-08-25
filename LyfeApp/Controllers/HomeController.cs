@@ -73,6 +73,7 @@ namespace LyfeApp.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TogglePostLike(PostLikesDto postLikesDto)
         {
             var loggedInUserId = GetUserId();
@@ -84,7 +85,9 @@ namespace LyfeApp.Controllers
 
             await _postService.TogglePostLikeAsync(postLikesDto.PostId, loggedInUserId.Value);
 
-            return RedirectToAction("Index");
+            var post = await _postService.GetPostByIdAsync(postLikesDto.PostId);
+
+            return PartialView("Home/_Post", post);
         }
 
         [HttpPost]
@@ -132,7 +135,9 @@ namespace LyfeApp.Controllers
 
             await _postService.TogglePostFavoriteAsync(postFavDto.PostId, loggedInUserId.Value);
 
-            return RedirectToAction("Index");
+            var post = await _postService.GetPostByIdAsync(postFavDto.PostId);
+
+            return PartialView("Home/_Post", post);
         }
 
         [HttpPost]
