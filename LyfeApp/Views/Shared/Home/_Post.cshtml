@@ -1,3 +1,4 @@
+@inject UserManager<UserModel> UserManager
 @model PostModel
 
 @{
@@ -22,14 +23,17 @@
     bool isLiked = Model.Likes.Any(l => l.UserId == loggedInUserId);
     bool isFavorited = Model.Favorites.Any(f => f.UserId == loggedInUserId);
 
-    string defaultUserPic = "~/images/avatar/user.png";
+    var currentUser = await UserManager.GetUserAsync(User);
+    string currentUserProfilePic = !string.IsNullOrEmpty(currentUser?.ProfilePicUrl) ? 
+        Url.Content("~/"+currentUser.ProfilePicUrl) : 
+        Url.Content("~/images/avatar/user.png");
 
     bool showAllComments = ViewData["ShowAllComments"] as bool? ?? false;
     @* ViewData di data bastelemha men another view, not the backend *@
 
 }
 
-<div id="post-@Model.Id" class="bg-white rounded-xl shadow-sm text-sm font-medium border1">
+<div id="post-@Model.Id" class="post-container bg-white rounded-xl shadow-sm text-sm font-medium border1">
 
     @* Post heading *@
     <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
@@ -61,9 +65,12 @@
 
                 <hr>
                 
-                <button type="button" onclick="openPostDeleteConfirmation('@Model.Id')" class="text-red-400 hover:!bg-red-50 icon-link delete-post-btn">
-                    <ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
-                </button>
+                @if(Model.UserId == loggedInUserId)
+                {
+                    <button type="button" onclick="openPostDeleteConfirmation('@Model.Id')" class="text-red-400 hover:!bg-red-50 icon-link delete-post-btn">
+                        <ion-icon name="trash-bin-outline"></ion-icon>  Delete Post
+                    </button>
+                }
 
                 <form asp-controller="Home" asp-action="Report">
                     <input type="hidden" name="PostId" value="@Model.Id" />
@@ -166,14 +173,17 @@
                                 @comment.Content
                             </p>
 
-                            <form asp-controller="Home" asp-action="DeleteComment" class="ml-2 remove-comment-form">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="CommentId" value="@comment.Id"/>
-                                <input type="hidden" name="PostId" value="@comment.PostId"/>
-                                <button type="submit" class="text-red-500 text-xs hover:text-red-700" title="Remove post comment">
-                                    <ion-icon name="trash-outline"></ion-icon>
-                                </button>
-                            </form>
+                            @if(comment.UserId == loggedInUserId || Model.UserId == loggedInUserId)
+                            {
+                                <form asp-controller="Home" asp-action="DeleteComment" class="ml-2 remove-comment-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="CommentId" value="@comment.Id"/>
+                                    <input type="hidden" name="PostId" value="@comment.PostId"/>
+                                    <button type="submit" class="text-red-500 text-xs hover:text-red-700" title="Remove post comment">
+                                        <ion-icon name="trash-outline"></ion-icon>
+                                    </button>
+                                </form>
+                            }
                         </div>
                     </div>
                 </div>
@@ -194,9 +204,8 @@
             @Html.AntiForgeryToken()
             <div class="sm:px-4 sm:py-3 p-2.5 border-t border-gray-100 flex items-center gap-1">
 
-                <a asp-controller="Users" asp-action="Details" asp-route-userId="@Model.UserId">
-                    <img src="@(!string.IsNullOrEmpty(Model.User.ProfilePicUrl) ? Url.Content("~/"+Model.User.ProfilePicUrl) : Url.Content("~/images/avatar/user.png"))" 
-                    class="w-6 h-6 rounded-full" />
+                <a asp-controller="Users" asp-action="Details" asp-route-userId="@loggedInUserId">
+                    <img src="@currentUserProfilePic" class="w-6 h-6 rounded-full" />
                 </a>
             
                 <input type="hidden" name="PostId" value="@Model.Id" />

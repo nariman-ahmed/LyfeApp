@@ -9,6 +9,7 @@ namespace LyfeApp.Data.DTO.Users
     public class UserProfileDetailsDto
     {
         public UserModel User { get; set; }
-        public List<PostModel> Posts { get; set; }
+        public List<PostModel> Posts { get; set; } = new List<PostModel>();
+        public List<Friendship> Friends { get; set; } = new List<Friendship>();
     }
 }

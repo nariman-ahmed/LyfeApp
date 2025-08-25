@@ -13,10 +13,14 @@ namespace LyfeApp.Controllers
     public class UsersController : Controller
     {
         private readonly IUserService _usersService;
-        public UsersController(IUserService usersService)
+        private readonly IFriendsService _friendsService;
+        
+        public UsersController(IUserService usersService, IFriendsService friendsService)
         {
             _usersService = usersService;
+            _friendsService = friendsService;
         }
+        
         public IActionResult Index()
         {
             return View();
@@ -25,11 +29,13 @@ namespace LyfeApp.Controllers
         public async Task<IActionResult> Details(int userId)
         {
             var userPosts = await _usersService.GetUserPostsAsync(userId);
+            var userFriends = await _friendsService.GetAllFriendsAsync(userId);
 
             var userDetailsDto = new UserProfileDetailsDto
             {
                 User = await _usersService.GetUserAsync(userId),
-                Posts = userPosts
+                Posts = userPosts,
+                Friends = userFriends
             };
 
             return View(userDetailsDto);
