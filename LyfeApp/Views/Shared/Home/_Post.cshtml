@@ -33,7 +33,7 @@
 
 }
 
-<div id="post-@Model.Id" class="post-container bg-white rounded-xl shadow-sm text-sm font-medium border1">
+<div id="post-@Model.Id" class="post-container bg-white rounded-xl shadow-sm text-sm font-medium border1" style="width: 100% !important; max-width: none !important;">
 
     @* Post heading *@
     <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
@@ -94,8 +94,8 @@
     @if (!string.IsNullOrEmpty(Model.ImageUrl))
     {
         <a asp-controller="Home" asp-action="PostDetails" asp-route-postId="@Model.Id">
-            <div class="relative w-full h-full">
-                <img src="@Url.Content("~/"+Model.ImageUrl)" class="sm:rounded-lg w-full h-full object-cover" />
+            <div class="relative w-full @(showAllComments ? "max-h-96" : "h-full")" @(showAllComments ? "style=max-height: 400px !important;" : "")>
+                <img src="@Url.Content("~/"+Model.ImageUrl)" class="sm:rounded-lg w-full @(showAllComments ? "max-h-96" : "h-full") object-cover" @(showAllComments ? "style=max-height: 400px !important; height: auto !important;" : "") />
             </div>
         </a>
     }
