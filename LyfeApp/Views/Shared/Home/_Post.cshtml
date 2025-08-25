@@ -120,6 +120,7 @@
 
         <div class="flex items-center gap-2">
             <form asp-controller="Home" asp-action="TogglePostFavorites">
+                @Html.AntiForgeryToken()
                 <input type="hidden" name="PostId" value="@Model.Id"/>
                 <button type="submit" class="button-icon ml-auto favorite-button @(isFavorited ? "text-orange-500 bt-orange-100" : "" )">
                     <ion-icon class="text-lg" name="@(isFavorited ? "bookmark" : "bookmark-outline" )"></ion-icon>
@@ -165,8 +166,10 @@
                                 @comment.Content
                             </p>
 
-                            <form asp-controller="Home" asp-action="DeleteComment" class="ml-2">
+                            <form asp-controller="Home" asp-action="DeleteComment" class="ml-2 remove-comment-form">
+                                @Html.AntiForgeryToken()
                                 <input type="hidden" name="CommentId" value="@comment.Id"/>
+                                <input type="hidden" name="PostId" value="@comment.PostId"/>
                                 <button type="submit" class="text-red-500 text-xs hover:text-red-700" title="Remove post comment">
                                     <ion-icon name="trash-outline"></ion-icon>
                                 </button>

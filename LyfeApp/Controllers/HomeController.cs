@@ -99,12 +99,15 @@ namespace LyfeApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteComment(DeleteCommentDto comment)
         {
             //hakhod mel ui el comment id
             await _postService.DeleteCommentAsync(comment.CommentId);
 
-            return RedirectToAction("Index");
+            var post = await _postService.GetPostByIdAsync(comment.PostId);
+
+            return PartialView("Home/_Post", post);
         }
 
         [HttpPost]
@@ -127,6 +130,7 @@ namespace LyfeApp.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> TogglePostFavorites(PostFavoritesDto postFavDto)
         {
             var loggedInUserId = GetUserId();
